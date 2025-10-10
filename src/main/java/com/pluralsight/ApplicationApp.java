@@ -34,6 +34,8 @@ public class ApplicationApp {
         System.out.println("(0) Back"); //goes back to the Ledger page
         System.out.println("(H) Back to home page"); //goes back to the home page
 
+        //need to make switch statement for all menus
+
 
 
 
