@@ -11,34 +11,12 @@ public class ApplicationApp {
         Scanner scanner = new Scanner(System.in);
 
 
-        System.out.println("===== Home Screen =====");
-        System.out.println("(D) Add Deposit");
-        System.out.println("(P) Make a payment");
-        System.out.println("(L)Ledger display ");// needs to go to next menu if L
-        System.out.println("(X)Exit the application ");
+        displayMainMenu();
 
 
-        System.out.println("===== Ledger Display =====");
-        System.out.println("(A)All"); //displays all entries
-        System.out.println("(D)Deposits");
-        System.out.println("(P) Payments");
-        System.out.println("(R) Reports"); //goes to next menu to run a more custom search
+        displayLedgerMenu();
 
-        System.out.println("===== Report Menu =====");
-        System.out.println("(1) Month to Date");
-        System.out.println("(2) Previous Month");
-        System.out.println("(3) Year to Date");
-        System.out.println("(4) Previous Year");
-        System.out.println("(5) Search by Vendor");//prompt the user for the vendor name
-        // and display all entries for that vendor
-        System.out.println("(0) Back"); //goes back to the Ledger page
-        System.out.println("(H) Back to home page"); //goes back to the home page
-
-        //need to make switch statement for all menus
-
-
-
-
+        displayReportMenu();
 
 
         try {
@@ -65,6 +43,36 @@ public class ApplicationApp {
                 IOException e) {
             System.out.println(" Error reading file: " + e.getMessage());
         }
+    }
+
+    private static void displayReportMenu() {
+        System.out.println("===== Report Menu =====");
+        System.out.println("(1) Month to Date");
+        System.out.println("(2) Previous Month");
+        System.out.println("(3) Year to Date");
+        System.out.println("(4) Previous Year");
+        System.out.println("(5) Search by Vendor");//prompt the user for the vendor name
+        // and display all entries for that vendor
+        System.out.println("(0) Back"); //goes back to the Ledger page
+        System.out.println("(H) Back to home page"); //goes back to the home page
+
+        //need to make switch statement for all menus
+    }
+
+    private static void displayLedgerMenu() {
+        System.out.println("===== Ledger Display =====");
+        System.out.println("(A)All"); //displays all entries
+        System.out.println("(D)Deposits");
+        System.out.println("(P) Payments");
+        System.out.println("(R) Reports"); //goes to next menu to run a more custom search
+    }
+
+    private static void displayMainMenu() {
+        System.out.println("===== Home Screen =====");
+        System.out.println("(D) Add Deposit");
+        System.out.println("(P) Make a payment");
+        System.out.println("(L)Ledger display ");// needs to go to next menu if L
+        System.out.println("(X)Exit the application ");
     }
 }
 
