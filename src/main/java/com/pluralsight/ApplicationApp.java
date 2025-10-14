@@ -44,9 +44,13 @@ public class ApplicationApp {
                     break;
                 case "R":
                     displayReportMenu();
-
-
-
+                    break;
+                case "X":
+                    System.out.println("Exiting app... Have a blessed day");
+                    running = false;
+                    break;
+                default:
+                    System.out.println("Invalid choice. Please try again");
 
 
             }
@@ -81,29 +85,75 @@ public class ApplicationApp {
     }
 
     private static void displayReportMenu() {
+        boolean report = true;
+        while (report) {
+            System.out.println("===== Report Menu =====");
+            System.out.println("(1) Month to Date");
+            System.out.println("(2) Previous Month");
+            System.out.println("(3) Year to Date");
+            System.out.println("(4) Previous Year");
+            System.out.println("(5) Search by Vendor");//prompt the user for the vendor name
+            // and display all entries for that vendor
+            System.out.println("(0) Back"); //goes back to the Ledger page
+            System.out.println("(H) Back to home page"); //goes back to the home page
+            System.out.println("Exiting... Goodbye!");
+            //need to make switch statement for all menus
+
+            System.out.println("Choose an option: ");
+            String choice= scanner.nextLine().trim().toUpperCase();
+
+            switch (choice) {
+                case "1":
+                    System.out.println("Showing Month to Date report...");
+                    break;
+                case "2":
+                    System.out.println("Showing Previous Month report...");
+                    break;
+                case"3":
+                    System.out.println("Showing Year to Date report...");
+                    break;
+                case "4":
+                    System.out.println("Showing Previous Year report...");
+                    break;
+                case "5":
+                    System.out.println("Search by Vendor selected...");
+                    break;
+                case "0":
+                    report = false; // go back to Ledger
+                    break;
+                case "H":
+                    return; // returns to main menu
+                default:
+                    System.out.println("Invalid choice. Try again.");
+            }
+
+        }
 
 
-        System.out.println("===== Report Menu =====");
-        System.out.println("(1) Month to Date");
-        System.out.println("(2) Previous Month");
-        System.out.println("(3) Year to Date");
-        System.out.println("(4) Previous Year");
-        System.out.println("(5) Search by Vendor");//prompt the user for the vendor name
-        // and display all entries for that vendor
-        System.out.println("(0) Back"); //goes back to the Ledger page
-        System.out.println("(H) Back to home page"); //goes back to the home page
-
-        System.out.println("Exiting... Goodbye!");
-
-        //need to make switch statement for all menus
     }
 
     private static void displayLedgerMenu() {
-        System.out.println("===== Ledger Menu =====");
-        System.out.println("(A)All"); //displays all entries
-        System.out.println("(D)Deposits");
-        System.out.println("(P) Payments");
-        System.out.println("(R) Reports"); //goes to next menu to run a more custom search
+        boolean ledger=true;
+        while (ledger) {
+            System.out.println("===== Ledger Menu =====");
+            System.out.println("(A)All"); //displays all entries
+            System.out.println("(D)Deposits");
+            System.out.println("(P) Payments");
+            System.out.println("(R) Reports"); //goes to next menu to run a more custom search
+
+            System.out.println("Choose a option: ");
+            String choice= scanner.next();
+            switch (choice) {
+                case "A":
+                    System.out.println("Showing Whole ledger report...");
+                    break;
+                case "D":
+                    System.out.println("Showing Deposits only...");
+                    break;
+
+            }
+        }
+
     }
 
     private static void displayMainMenu() {
@@ -155,15 +205,15 @@ public class ApplicationApp {
 
     private static void addPayment() {
 //        Adding payment in this section and all debits should be negative
-        boolean addMore=true;
+        boolean addMore = true;
         System.out.println("Enter your card number: ");
-        String cardNumber=scanner.nextLine();
+        String cardNumber = scanner.nextLine();
         System.out.println("Enter your name: ");
-        String name=scanner.nextLine();
+        String name = scanner.nextLine();
         System.out.println("Enter date of card: ");
-        String date=scanner.nextLine();
+        String date = scanner.nextLine();
         System.out.println("How much do you want to pay: ");
-        Double debit=scanner.nextDouble();
+        Double debit = scanner.nextDouble();
 
         try (FileWriter fileWriter = new FileWriter("debit.csv", true);
              BufferedWriter bufferedWriter = new BufferedWriter(fileWriter)) {
@@ -188,6 +238,7 @@ public class ApplicationApp {
         }
 
     }
+
     private static void displayDeposits() {
         System.out.println("\n ---All Deposits---");
         try {
