@@ -42,15 +42,15 @@ public class ApplicationApp {
                 case "L":
                     displayLedgerMenu();
                     break;
-                case "R":
-                    displayReportMenu();
-                    break;
+//                case "R":
+//                    displayReportMenu();
+//                    break;
                 case "X":
                     System.out.println("Exiting app... Have a blessed day");
                     running = false;
                     break;
                 default:
-                    System.out.println("Invalid choice. Please try again");
+                    System.out.println("Invalid choice. Read the choices again bro!!!");
 
 
             }
@@ -96,7 +96,7 @@ public class ApplicationApp {
             // and display all entries for that vendor
             System.out.println("(0) Back"); //goes back to the Ledger page
             System.out.println("(H) Back to home page"); //goes back to the home page
-            System.out.println("Exiting... Goodbye!");
+
             //need to make switch statement for all menus
 
             System.out.println("Choose an option: ");
@@ -119,9 +119,11 @@ public class ApplicationApp {
                     System.out.println("Search by Vendor selected...");
                     break;
                 case "0":
+                    System.out.println("Exiting... Goodbye!");
                     report = false; // go back to Ledger
                     break;
                 case "H":
+                    System.out.println("Exiting... Goodbye!");
                     return; // returns to main menu
                 default:
                     System.out.println("Invalid choice. Try again.");
@@ -140,9 +142,9 @@ public class ApplicationApp {
             System.out.println("(D)Deposits");
             System.out.println("(P) Payments");
             System.out.println("(R) Reports"); //goes to next menu to run a more custom search
-
+            System.out.println("(H) Returning to home menu");
             System.out.println("Choose a option: ");
-            String choice= scanner.next();
+            String choice= scanner.nextLine().trim().toUpperCase();
             switch (choice) {
                 case "A":
                     System.out.println("Showing Whole ledger report...");
@@ -150,6 +152,17 @@ public class ApplicationApp {
                 case "D":
                     System.out.println("Showing Deposits only...");
                     break;
+                case "P":
+                    System.out.println("Showing Payments only...");
+                    break;
+                case "R":
+                    displayReportMenu();
+                    break;
+                case "H":
+                    System.out.println("Returning to home menu...");
+                    ledger=false;
+                default:
+                    System.out.println("Invalid choice. Please try again.");
 
             }
         }
@@ -157,11 +170,14 @@ public class ApplicationApp {
     }
 
     private static void displayMainMenu() {
+        boolean running =true;
         System.out.println("===== Home Screen =====");
         System.out.println("(D) Add Deposit");
         System.out.println("(P) Make a payment");
         System.out.println("(L)Ledger display ");// needs to go to next menu if L
         System.out.println("(X)Exit the application ");
+        if (running==!true) {
+        }
     }
 
     private static void addDepositMenu() {
