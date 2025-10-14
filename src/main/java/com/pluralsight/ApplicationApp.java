@@ -2,13 +2,15 @@ package com.pluralsight;
 
 import java.io.*;
 import java.util.Scanner;
+import java.util.regex.Pattern;
 
 public class ApplicationApp {
     private static final Scanner scanner = new Scanner(System.in);
+
     public static void main(String[] args) throws IOException {
 
 
-        displayMainMenu();
+//        displayMainMenu();
         runMainMenu();
 
 //
@@ -20,20 +22,31 @@ public class ApplicationApp {
 //        runFileReader();
 
 
-
-
-
     }
 
     public static void runMainMenu() {
-        boolean running =true;
+        boolean running = true;
         while (running) {
             displayMainMenu();
-            System.out.println("Choose an option.");
-            String choice=scanner.nextLine().trim().toUpperCase();
+            System.out.println("Choose an option: ");
+
+            String choice = scanner.nextLine().trim().toUpperCase();
             switch (choice) {
-                case "D": addDepositMenu();
-                break;
+                case "D":
+                    addDepositMenu();
+                    displayDeposits();
+                    break;
+                case "P":
+                    addPayment();
+                    break;
+                case "L":
+                    displayLedgerMenu();
+                    break;
+                case "R":
+                    displayReportMenu();
+
+
+
 
 
             }
@@ -68,6 +81,8 @@ public class ApplicationApp {
     }
 
     private static void displayReportMenu() {
+
+
         System.out.println("===== Report Menu =====");
         System.out.println("(1) Month to Date");
         System.out.println("(2) Previous Month");
@@ -78,11 +93,13 @@ public class ApplicationApp {
         System.out.println("(0) Back"); //goes back to the Ledger page
         System.out.println("(H) Back to home page"); //goes back to the home page
 
+        System.out.println("Exiting... Goodbye!");
+
         //need to make switch statement for all menus
     }
 
     private static void displayLedgerMenu() {
-        System.out.println("===== Ledger Display =====");
+        System.out.println("===== Ledger Menu =====");
         System.out.println("(A)All"); //displays all entries
         System.out.println("(D)Deposits");
         System.out.println("(P) Payments");
@@ -98,7 +115,8 @@ public class ApplicationApp {
     }
 
     private static void addDepositMenu() {
-
+        boolean addMore = true;
+//        All deposits should be positive.
         //  Ask the user for their deposit info
         System.out.print("Enter deposit date (YYYY-MM-DD): ");
         String date = scanner.nextLine();
@@ -112,19 +130,86 @@ public class ApplicationApp {
         System.out.print("Enter your deposit amount: ");
         double amount = scanner.nextDouble();
 
-        try {
-            FileWriter fileWriter=new FileWriter("deposits.csv",true);
-            BufferedWriter bufferedWriter=new BufferedWriter(fileWriter);
-            bufferedWriter.write(date +"|" + accountNumber+"|"+name+"|"+amount);
+        try (FileWriter fileWriter = new FileWriter("deposits.csv", true);
+             BufferedWriter bufferedWriter = new BufferedWriter(fileWriter)) {
+
+            bufferedWriter.write(date + "|" + accountNumber + "|" + name + "|" + amount + "\n");
             System.out.println("Deposit successfully made!");
 
-
-
-        }catch (IOException e) {
+        } catch (IOException e) {
             System.out.println("ERROR: Cannot make the deposit ");
 //            e.getStackTrace();
         }
+        // Ask if user wants to add another
+        System.out.print("Would you like to make another deposit? (yes/no): ");
+        String response = scanner.nextLine().trim().toLowerCase();
+
+        if (!response.equals("yes") && !response.equals("y")) {
+            addMore = false;
+            System.out.println("Returning to main menu...");
+        } else {
+            System.out.println("\n---Add another deposit---\n");
+
+        }
     }
 
+    private static void addPayment() {
+//        Adding payment in this section and all debits should be negative
+        boolean addMore=true;
+        System.out.println("Enter your card number: ");
+        String cardNumber=scanner.nextLine();
+        System.out.println("Enter your name: ");
+        String name=scanner.nextLine();
+        System.out.println("Enter date of card: ");
+        String date=scanner.nextLine();
+        System.out.println("How much do you want to pay: ");
+        Double debit=scanner.nextDouble();
+
+        try (FileWriter fileWriter = new FileWriter("debit.csv", true);
+             BufferedWriter bufferedWriter = new BufferedWriter(fileWriter)) {
+
+            bufferedWriter.write(date + "|" + cardNumber + "|" + name + "|" + debit + "\n");
+            System.out.println("Debit successfully made!");
+
+        } catch (IOException e) {
+            System.out.println("ERROR: Cannot make the debit ");
+//            e.getStackTrace();
+        }
+        // Ask if user wants to add another
+        System.out.print("Would you like to make another deposit? (yes/no): ");
+        String response = scanner.nextLine().trim().toLowerCase();
+
+        if (!response.equals("yes") && !response.equals("y")) {
+            addMore = false;
+            System.out.println("Returning to main menu...");
+        } else {
+            System.out.println("\n---Add another debit---\n");
+
+        }
+
+    }
+    private static void displayDeposits() {
+        System.out.println("\n ---All Deposits---");
+        try {
+            BufferedReader reader = new BufferedReader(new FileReader("deposits.csv"));
+            String line;
+            while ((line = reader.readLine()) != null) {
+                String[] parts = line.split(Pattern.quote("|"));
+                if (parts.length == 4) {
+                    System.out.printf("Date: %s | Account: %s | Name: %s | Amount: %s%n",
+                            parts[0], parts[1], parts[2], parts[3]);
+                }
+            }
+        } catch (FileNotFoundException e) {
+            System.out.println("No deposits found yet (file not created).");
+        } catch (IOException e) {
+            System.out.println(" Error reading deposits: " + e.getMessage());
+        }
+        System.out.println("--------------------\n");
+    }
 }
+
+
+
+
 
