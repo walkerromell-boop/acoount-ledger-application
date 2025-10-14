@@ -1,24 +1,46 @@
 package com.pluralsight;
 
-import java.io.BufferedReader;
-import java.io.FileNotFoundException;
-import java.io.FileReader;
-import java.io.IOException;
+import java.io.*;
 import java.util.Scanner;
 
 public class ApplicationApp {
+    private static final Scanner scanner = new Scanner(System.in);
     public static void main(String[] args) throws IOException {
-        Scanner scanner = new Scanner(System.in);
 
 
         displayMainMenu();
+        runMainMenu();
+
+//
+//        displayLedgerMenu();
+//
+//        displayReportMenu();
+//
+//
+//        runFileReader();
 
 
-        displayLedgerMenu();
-
-        displayReportMenu();
 
 
+
+    }
+
+    public static void runMainMenu() {
+        boolean running =true;
+        while (running) {
+            displayMainMenu();
+            System.out.println("Choose an option.");
+            String choice=scanner.nextLine().trim().toUpperCase();
+            switch (choice) {
+                case "D": addDepositMenu();
+                break;
+
+
+            }
+        }
+    }
+
+    private static void runFileReader() {
         try {
             FileReader fileReader = new FileReader("transactions.csv");
             BufferedReader bufferedReader = new BufferedReader(fileReader);
@@ -74,5 +96,35 @@ public class ApplicationApp {
         System.out.println("(L)Ledger display ");// needs to go to next menu if L
         System.out.println("(X)Exit the application ");
     }
+
+    private static void addDepositMenu() {
+
+        //  Ask the user for their deposit info
+        System.out.print("Enter deposit date (YYYY-MM-DD): ");
+        String date = scanner.nextLine();
+
+        System.out.print("Enter your account number: ");
+        String accountNumber = scanner.nextLine();
+
+        System.out.print("Enter your name: ");
+        String name = scanner.nextLine();
+
+        System.out.print("Enter your deposit amount: ");
+        double amount = scanner.nextDouble();
+
+        try {
+            FileWriter fileWriter=new FileWriter("deposits.csv",true);
+            BufferedWriter bufferedWriter=new BufferedWriter(fileWriter);
+            bufferedWriter.write(date +"|" + accountNumber+"|"+name+"|"+amount);
+            System.out.println("Deposit successfully made!");
+
+
+
+        }catch (IOException e) {
+            System.out.println("ERROR: Cannot make the deposit ");
+//            e.getStackTrace();
+        }
+    }
+
 }
 
