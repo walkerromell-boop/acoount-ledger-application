@@ -1,6 +1,9 @@
 package com.pluralsight;
 
 import java.io.*;
+import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Scanner;
 import java.util.regex.Pattern;
 
@@ -85,6 +88,7 @@ public class ApplicationApp {
     }
 
     private static void displayReportMenu() {
+        List<Transactions> transactions=readTransactions("transactions.csv");
         boolean report = true;
         while (report) {
             System.out.println("===== Report Menu =====");
@@ -104,29 +108,35 @@ public class ApplicationApp {
 
             switch (choice) {
                 case "1":
-                    System.out.println("Showing Month to Date report...");
+                    showMonthToDate(transactions);
                     break;
+
                 case "2":
-                    System.out.println("Showing Previous Month report...");
+                    showPreviousMonth(transactions);
                     break;
+
                 case "3":
-                    System.out.println("Showing Year to Date report...");
+                    showYearToDate(transactions);
                     break;
+
                 case "4":
-                    System.out.println("Showing Previous Year report...");
+                    showPreviousYear(transactions);
                     break;
+
                 case "5":
-                    System.out.println("Search by Vendor selected...");
+                    searchByVendor(transactions);
                     break;
+
                 case "0":
-                    System.out.println("Exiting... Goodbye!");
                     report = false; // go back to Ledger
                     break;
+
                 case "H":
-                    System.out.println("Exiting... Goodbye!");
-                    return; // returns to main menu
+                    return; // go back to main menu
+
                 default:
                     System.out.println("Invalid choice. Try again.");
+                    break;
             }
 
         }
@@ -135,6 +145,8 @@ public class ApplicationApp {
     }
 
     private static void displayLedgerMenu() {
+        List<Transactions> transactions = readTransactions("transactions.csv");
+
         boolean ledger = true;
         while (ledger) {
             System.out.println("===== Ledger Menu =====");
@@ -148,12 +160,21 @@ public class ApplicationApp {
             switch (choice) {
                 case "A":
                     System.out.println("Showing Whole ledger report...");
+                    displayResults(transactions);
                     break;
                 case "D":
                     System.out.println("Showing Deposits only...");
+                    List<Transactions> deposits = transactions.stream()
+                            .filter(t -> t.getAmount() > 0)
+                            .toList();
+                    displayResults(deposits);
                     break;
                 case "P":
                     System.out.println("Showing Payments only...");
+                    List<Transactions> payments = transactions.stream()
+                            .filter(t -> t.getAmount() < 0)
+                            .toList();
+                    displayResults(payments);
                     break;
                 case "R":
                     displayReportMenu();
@@ -225,36 +246,39 @@ public class ApplicationApp {
     private static void addPayment() {
 //        Adding payment in this section and all debits should be negative
         boolean addMore = true;
-        System.out.println("Enter your card number: ");
-        String cardNumber = scanner.nextLine();
-        System.out.println("Enter your name: ");
-        String name = scanner.nextLine();
-        System.out.println("Enter the expiration date of card: ");
-        String date = scanner.nextLine();
-        System.out.println("Enter Cvv of card: ");
-        Integer cvv = scanner.nextInt();
-        System.out.println("How much do you want to pay: ");
-        Double debit = scanner.nextDouble();
+        while (addMore) {
+            System.out.println("Enter your card number: ");
+            String cardNumber = scanner.nextLine();
+            System.out.println("Enter your name: ");
+            String name = scanner.nextLine();
+            System.out.println("Enter the expiration date of card: ");
+            String date = scanner.nextLine();
+            System.out.println("Enter Cvv of card: ");
+            Integer cvv = scanner.nextInt();
+            System.out.println("How much do you want to pay: ");
+            Double debit = scanner.nextDouble();
 
-        try (FileWriter fileWriter = new FileWriter("debit.csv", true);
-             BufferedWriter bufferedWriter = new BufferedWriter(fileWriter)) {
+            try (FileWriter fileWriter = new FileWriter("debit.csv", true);
+                 BufferedWriter bufferedWriter = new BufferedWriter(fileWriter)) {
 
-            bufferedWriter.write(date + "|" + cardNumber + "|" + name + "|" + cvv + "|" + debit + "\n");
-            System.out.println("Debit successfully made!");
+                bufferedWriter.write(date + "|" + cardNumber + "|" + name + "|" + cvv + "|" + debit + "\n");
+                System.out.println("Debit successfully made!");
 
-        } catch (IOException e) {
-            System.out.println("ERROR: Cannot make the debit ");
+            } catch (IOException e) {
+                System.out.println("ERROR: Cannot make the debit ");
 //            e.getStackTrace();
-        }
-        // Ask if user wants to add another
-        System.out.print("Would you like to make another deposit? (yes/no): ");
-        String response = scanner.nextLine().trim().toLowerCase();
+            }
+            // Ask if user wants to add another
+            System.out.print("Would you like to make another deposit? (yes/no): ");
+            String response = scanner.nextLine().trim().toLowerCase();
 
-        if (!response.equals("yes") && !response.equals("y")) {
-            addMore = false;
-            System.out.println("Returning to main menu...");
-        } else {
-            System.out.println("\n---Add another debit---\n");
+            if (!response.equals("yes") && !response.equals("y")) {
+                addMore = false;
+                System.out.println("Returning to main menu...");
+            } else {
+                System.out.println("\n---Add another debit---\n");
+
+            }
 
         }
 
@@ -279,6 +303,99 @@ public class ApplicationApp {
         }
         System.out.println("--------------------\n");
     }
+
+    private static List<Transactions> readTransactions(String filename) {
+        List<Transactions> transactions = new ArrayList<>();
+
+        try (BufferedReader bufferedReader = new BufferedReader(new FileReader(filename))) {
+            String line;
+            bufferedReader.readLine(); // skip header line
+            while ((line = bufferedReader.readLine()) != null) {
+                String[] parts = line.split("\\|");
+                if (parts.length < 5) continue; // skip incomplete lines
+
+                String date = parts[0];
+                String time = parts[1];
+                String description = parts[2];
+                String vendor = parts[3];
+                double amount = Double.parseDouble(parts[4]);
+
+                Transactions transaction = new Transactions(date, time, description, vendor, amount);
+                transactions.add(transaction);
+            }
+        } catch (IOException e) {
+            System.out.println("Error reading file: " + e.getMessage());
+        }
+
+        return transactions;
+    }
+
+    private static void showMonthToDate(List<Transactions> transactions) {
+        LocalDate now = LocalDate.now();
+        List<Transactions> filtered = transactions.stream()
+                .filter(t -> t.getDate().getMonth() == now.getMonth() &&
+                        t.getDate().getYear() == now.getYear())
+                .toList();
+
+        System.out.println("\n=== Month to Date Report ===");
+        displayResults(filtered);
+    }
+
+    private static void showPreviousMonth(List<Transactions> transactions) {
+        LocalDate now = LocalDate.now().minusMonths(1);
+        List<Transactions> filtered = transactions.stream()
+                .filter(t -> t.getDate().getMonth() == now.getMonth() &&
+                        t.getDate().getYear() == now.getYear())
+                .toList();
+
+        System.out.println("\n=== Previous Month Report ===");
+        displayResults(filtered);
+    }
+
+    private static void showYearToDate(List<Transactions> transactions) {
+        LocalDate now = LocalDate.now();
+        List<Transactions> filtered = transactions.stream()
+                .filter(t -> t.getDate().getYear() == now.getYear())
+                .toList();
+
+        System.out.println("\n=== Year to Date Report ===");
+        displayResults(filtered);
+    }
+
+    private static void showPreviousYear(List<Transactions> transactions) {
+        LocalDate now = LocalDate.now().minusYears(1);
+        List<Transactions> filtered = transactions.stream()
+                .filter(t -> t.getDate().getYear() == now.getYear())
+                .toList();
+
+        System.out.println("\n=== Previous Year Report ===");
+        displayResults(filtered);
+    }
+
+    private static void searchByVendor(List<Transactions> transactions) {
+        System.out.print("Enter vendor name: ");
+        String vendorName = scanner.nextLine().trim().toLowerCase();
+
+        List<Transactions> filtered = transactions.stream()
+                .filter(t -> t.getVendor().toLowerCase().contains(vendorName))
+                .toList();
+
+        System.out.println("\n=== Transactions for Vendor: " + vendorName + " ===");
+        displayResults(filtered);
+    }
+
+    private static void displayResults(List<Transactions> list) {
+        if (list.isEmpty()) {
+            System.out.println("No transactions found.");
+        } else {
+            list.forEach(System.out::println);
+        }
+        System.out.println(); // blank line for spacing
+    }
+
+
+
+
 }
 
 
