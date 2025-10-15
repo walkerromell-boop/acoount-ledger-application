@@ -257,6 +257,7 @@ public class ApplicationApp {
             Integer cvv = scanner.nextInt();
             System.out.println("How much do you want to pay: ");
             Double debit = scanner.nextDouble();
+            scanner.nextLine();
 
             try (FileWriter fileWriter = new FileWriter("debit.csv", true);
                  BufferedWriter bufferedWriter = new BufferedWriter(fileWriter)) {
