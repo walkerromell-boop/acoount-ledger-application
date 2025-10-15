@@ -100,7 +100,7 @@ public class ApplicationApp {
             //need to make switch statement for all menus
 
             System.out.println("Choose an option: ");
-            String choice= scanner.nextLine().trim().toUpperCase();
+            String choice = scanner.nextLine().trim().toUpperCase();
 
             switch (choice) {
                 case "1":
@@ -109,7 +109,7 @@ public class ApplicationApp {
                 case "2":
                     System.out.println("Showing Previous Month report...");
                     break;
-                case"3":
+                case "3":
                     System.out.println("Showing Year to Date report...");
                     break;
                 case "4":
@@ -135,7 +135,7 @@ public class ApplicationApp {
     }
 
     private static void displayLedgerMenu() {
-        boolean ledger=true;
+        boolean ledger = true;
         while (ledger) {
             System.out.println("===== Ledger Menu =====");
             System.out.println("(A)All"); //displays all entries
@@ -144,7 +144,7 @@ public class ApplicationApp {
             System.out.println("(R) Reports"); //goes to next menu to run a more custom search
             System.out.println("(H) Returning to home menu");
             System.out.println("Choose a option: ");
-            String choice= scanner.nextLine().trim().toUpperCase();
+            String choice = scanner.nextLine().trim().toUpperCase();
             switch (choice) {
                 case "A":
                     System.out.println("Showing Whole ledger report...");
@@ -160,7 +160,7 @@ public class ApplicationApp {
                     break;
                 case "H":
                     System.out.println("Returning to home menu...");
-                    ledger=false;
+                    ledger = false;
                 default:
                     System.out.println("Invalid choice. Please try again.");
 
@@ -170,13 +170,13 @@ public class ApplicationApp {
     }
 
     private static void displayMainMenu() {
-        boolean running =true;
+        boolean running = true;
         System.out.println("===== Home Screen =====");
         System.out.println("(D) Add Deposit");
         System.out.println("(P) Make a payment");
         System.out.println("(L)Ledger display ");// needs to go to next menu if L
         System.out.println("(X)Exit the application ");
-        if (running==!true) {
+        if (running == !true) {
         }
     }
 
@@ -184,38 +184,41 @@ public class ApplicationApp {
         boolean addMore = true;
 //        All deposits should be positive.
         //  Ask the user for their deposit info
-        System.out.print("Enter deposit date (YYYY-MM-DD): ");
-        String date = scanner.nextLine();
+        while (addMore) {
+            System.out.print("Enter deposit date (YYYY-MM-DD): ");
+            String date = scanner.nextLine();
 
-        System.out.print("Enter your account number: ");
-        String accountNumber = scanner.nextLine();
+            System.out.print("Enter your account number: ");
+            String accountNumber = scanner.nextLine();
 
-        System.out.print("Enter your name: ");
-        String name = scanner.nextLine();
+            System.out.print("Enter your name: ");
+            String name = scanner.nextLine();
 
-        System.out.print("Enter your deposit amount: ");
-        double amount = scanner.nextDouble();
+            System.out.print("Enter your deposit amount: ");
+            double amount = scanner.nextDouble();
+            scanner.nextLine();
 
-        try (FileWriter fileWriter = new FileWriter("deposits.csv", true);
-             BufferedWriter bufferedWriter = new BufferedWriter(fileWriter)) {
+            try (FileWriter fileWriter = new FileWriter("deposits.csv", true);
+                 BufferedWriter bufferedWriter = new BufferedWriter(fileWriter)) {
 
-            bufferedWriter.write(date + "|" + accountNumber + "|" + name + "|" + amount + "\n");
-            System.out.println("Deposit successfully made!");
+                bufferedWriter.write(date + "|" + accountNumber + "|" + name + "|" + amount + "\n");
+                System.out.println("Deposit successfully made!");
 
-        } catch (IOException e) {
-            System.out.println("ERROR: Cannot make the deposit ");
+            } catch (IOException e) {
+                System.out.println("ERROR: Cannot make the deposit ");
 //            e.getStackTrace();
-        }
-        // Ask if user wants to add another
-        System.out.print("Would you like to make another deposit? (yes/no): ");
-        String response = scanner.nextLine().trim().toLowerCase();
+            }
+            // Ask if user wants to add another
+            System.out.print("Would you like to make another deposit? (yes/no): ");
+            String response = scanner.nextLine().trim().toLowerCase();
 
-        if (!response.equals("yes") && !response.equals("y")) {
-            addMore = false;
-            System.out.println("Returning to main menu...");
-        } else {
-            System.out.println("\n---Add another deposit---\n");
+            if (!response.equals("yes") && !response.equals("y")) {
+                addMore = false;
+                System.out.println("Returning to main menu...");
+            } else {
+                System.out.println("\n---Add another deposit---\n");
 
+            }
         }
     }
 
@@ -226,15 +229,17 @@ public class ApplicationApp {
         String cardNumber = scanner.nextLine();
         System.out.println("Enter your name: ");
         String name = scanner.nextLine();
-        System.out.println("Enter date of card: ");
+        System.out.println("Enter the expiration date of card: ");
         String date = scanner.nextLine();
+        System.out.println("Enter Cvv of card: ");
+        Integer cvv = scanner.nextInt();
         System.out.println("How much do you want to pay: ");
         Double debit = scanner.nextDouble();
 
         try (FileWriter fileWriter = new FileWriter("debit.csv", true);
              BufferedWriter bufferedWriter = new BufferedWriter(fileWriter)) {
 
-            bufferedWriter.write(date + "|" + cardNumber + "|" + name + "|" + debit + "\n");
+            bufferedWriter.write(date + "|" + cardNumber + "|" + name + "|" + cvv + "|" + debit + "\n");
             System.out.println("Debit successfully made!");
 
         } catch (IOException e) {
