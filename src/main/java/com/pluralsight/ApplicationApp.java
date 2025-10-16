@@ -88,6 +88,61 @@ public class ApplicationApp {
         }
     }
 
+    private static boolean displayCustomSearchMenu() {
+        List<Transactions> transactions = readTransactions("transactions.csv");
+        boolean report = true;
+        while (report) {
+            System.out.println("===== Custom Search =====");
+            System.out.println("(1) Search by Start Date");
+            System.out.println("(2) Search by End Date");
+            System.out.println("(3) Search by Description");
+            System.out.println("(4) Search by Vendor");
+            System.out.println("(5) Search by Amount");//prompt the user for the vendor name
+            // and display all entries for that vendor
+
+            System.out.println("Choose an option: ");
+            String choice = scanner.nextLine().trim().toUpperCase();
+
+            switch (choice) {
+                case "1":
+                    showMonthToDate(transactions);
+                    break;
+
+                case "2":
+                    showPreviousMonth(transactions);
+                    break;
+
+                case "3":
+                    showYearToDate(transactions);
+                    break;
+
+                case "4":
+                    showPreviousYear(transactions);
+                    break;
+
+                case "5":
+                    searchByVendor(transactions);
+                    break;
+
+                case "0":
+                    report = false; // go back to Ledger
+                    break;
+
+                case "H":
+                    //System.out.println("returning to main menu");
+                    return true;
+
+                default:
+                    System.out.println("Invalid choice. Try again.");
+                    break;
+
+            }
+
+        }
+
+        return false;
+    }
+
     private static boolean displayReportMenu() {
         List<Transactions> transactions = readTransactions("transactions.csv");
         boolean report = true;
