@@ -133,13 +133,12 @@ public class ApplicationApp {
                     break;
 
                 case "H":
-                    System.out.println("returning to main menu");
-                    runMainMenu();
-                    break;// go back to main menu
+                    report=false;                //System.out.println("returning to main menu");
+                    return;
 
                 default:
                     System.out.println("Invalid choice. Try again.");
-                    break;
+
             }
 
         }
@@ -184,9 +183,7 @@ public class ApplicationApp {
                     break;
                 case "H":
                     System.out.println("Returning to home menu...");
-                    ledger = false;
-                    runMainMenu();
-                    break;
+                    return;
                 default:
                     System.out.println("Invalid choice. Please try again.");
 
@@ -391,7 +388,7 @@ public class ApplicationApp {
             }
 
             // Now it writes new entry FIRST, then the old lines
-            try (BufferedWriter writer = new BufferedWriter(new FileWriter(file))) {
+            try (BufferedWriter writer = new BufferedWriter(new FileWriter(file,true))) {
                 for (String line : lines) {
                     writer.write(line + "\n");
                 }
