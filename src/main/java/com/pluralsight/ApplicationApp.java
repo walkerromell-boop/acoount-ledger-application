@@ -88,7 +88,7 @@ public class ApplicationApp {
         }
     }
 
-    private static void displayReportMenu() {
+    private static boolean displayReportMenu() {
         List<Transactions> transactions = readTransactions("transactions.csv");
         boolean report = true;
         while (report) {
@@ -133,17 +133,18 @@ public class ApplicationApp {
                     break;
 
                 case "H":
-                    report=false;                //System.out.println("returning to main menu");
-                    return;
+                    //System.out.println("returning to main menu");
+                    return true;
 
                 default:
                     System.out.println("Invalid choice. Try again.");
+                    break;
 
             }
 
         }
 
-
+        return false;
     }
 
     private static void displayLedgerMenu() {
@@ -179,7 +180,8 @@ public class ApplicationApp {
                     displayResults(payments);
                     break;
                 case "R":
-                    displayReportMenu();
+                    boolean backToMain = displayReportMenu();
+                    if (backToMain) return;
                     break;
                 case "H":
                     System.out.println("Returning to home menu...");
@@ -388,7 +390,7 @@ public class ApplicationApp {
             }
 
             // Now it writes new entry FIRST, then the old lines
-            try (BufferedWriter writer = new BufferedWriter(new FileWriter(file,true))) {
+            try (BufferedWriter writer = new BufferedWriter(new FileWriter(file, true))) {
                 for (String line : lines) {
                     writer.write(line + "\n");
                 }
