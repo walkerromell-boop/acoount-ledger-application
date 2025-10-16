@@ -1,5 +1,6 @@
 package com.pluralsight;
 
+import java.time.LocalTime;
 import java.io.*;
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -88,7 +89,7 @@ public class ApplicationApp {
     }
 
     private static void displayReportMenu() {
-        List<Transactions> transactions=readTransactions("transactions.csv");
+        List<Transactions> transactions = readTransactions("transactions.csv");
         boolean report = true;
         while (report) {
             System.out.println("===== Report Menu =====");
@@ -132,7 +133,9 @@ public class ApplicationApp {
                     break;
 
                 case "H":
-                    return; // go back to main menu
+                    System.out.println("returning to main menu");
+                    runMainMenu();
+                    break;// go back to main menu
 
                 default:
                     System.out.println("Invalid choice. Try again.");
@@ -182,6 +185,8 @@ public class ApplicationApp {
                 case "H":
                     System.out.println("Returning to home menu...");
                     ledger = false;
+                    runMainMenu();
+                    break;
                 default:
                     System.out.println("Invalid choice. Please try again.");
 
@@ -206,8 +211,8 @@ public class ApplicationApp {
 //        All deposits should be positive.
         //  Ask the user for their deposit info
         while (addMore) {
-            System.out.print("Enter deposit date (YYYY-MM-DD): ");
-            String date = scanner.nextLine();
+//            System.out.print("Enter deposit date (YYYY-MM-DD): ");
+//            String date = scanner.nextLine();
 
             System.out.print("Enter your account number: ");
             String accountNumber = scanner.nextLine();
@@ -217,18 +222,29 @@ public class ApplicationApp {
 
             System.out.print("Enter your deposit amount: ");
             double amount = scanner.nextDouble();
-            scanner.nextLine();
+            scanner.nextLine(); //consumes the next line
 
-            try (FileWriter fileWriter = new FileWriter("deposits.csv", true);
-                 BufferedWriter bufferedWriter = new BufferedWriter(fileWriter)) {
+            // Auto date & time
+            String date = LocalDate.now().toString();
+            String time = LocalTime.now().withNano(0).toString(); // removes nanoseconds
 
-                bufferedWriter.write(date + "|" + accountNumber + "|" + name + "|" + amount + "\n");
-                System.out.println("Deposit successfully made!");
+            // Write deposit to transactions.csv
+            writeTransactionToFile(date, time, "Deposit to " + accountNumber, name, amount);
 
-            } catch (IOException e) {
-                System.out.println("ERROR: Cannot make the deposit ");
-//            e.getStackTrace();
-            }
+//            try {
+//                String time = "00:00"; // You can add a real time if you want
+//                writeTransactionToFile(date, time, "Deposit", name, amount);
+//                System.out.println("Deposit successfully added!");
+////            try (FileWriter fileWriter = new FileWriter("deposits.csv", true);
+////                 BufferedWriter bufferedWriter = new BufferedWriter(fileWriter)) {
+////
+////                bufferedWriter.write(date + "|" + accountNumber + "|" + name + "|" + amount + "\n");
+////                System.out.println("Deposit successfully made!");
+//
+//            } catch (Exception e) {
+//                System.out.println("ERROR: Cannot make the deposit ");
+////            e.getStackTrace();
+//            }
             // Ask if user wants to add another
             System.out.print("Would you like to make another deposit? (yes/no): ");
             String response = scanner.nextLine().trim().toLowerCase();
@@ -252,23 +268,37 @@ public class ApplicationApp {
             System.out.println("Enter your name: ");
             String name = scanner.nextLine();
             System.out.println("Enter the expiration date of card: ");
-            String date = scanner.nextLine();
+            String expiredDate = scanner.nextLine();
             System.out.println("Enter Cvv of card: ");
             Integer cvv = scanner.nextInt();
             System.out.println("How much do you want to pay: ");
             Double debit = scanner.nextDouble();
             scanner.nextLine();
 
-            try (FileWriter fileWriter = new FileWriter("debit.csv", true);
-                 BufferedWriter bufferedWriter = new BufferedWriter(fileWriter)) {
+            // Auto date & time
+            String date = LocalDate.now().toString();
+            String time = LocalTime.now().withNano(0).toString();
+            double negativeAmount = -Math.abs(debit);
 
-                bufferedWriter.write(date + "|" + cardNumber + "|" + name + "|" + cvv + "|" + debit + "\n");
-                System.out.println("Debit successfully made!");
+            // Write payment to transactions.csv
+            writeTransactionToFile(date, time, "Payment via card " + cardNumber, name, negativeAmount);
 
-            } catch (IOException e) {
-                System.out.println("ERROR: Cannot make the debit ");
-//            e.getStackTrace();
-            }
+//            try {
+//                double debitAmount = -Math.abs(debit); // ensures it's negative
+//                String time = "00:00"; // placeholder, or use LocalTime.now().toString()
+//                writeTransactionToFile(date, time, "Payment", name, debitAmount);
+//                System.out.println("Payment successfully added!");
+//
+////            try (FileWriter fileWriter = new FileWriter("debit.csv", true);
+////                 BufferedWriter bufferedWriter = new BufferedWriter(fileWriter)) {
+////
+////                bufferedWriter.write(date + "|" + cardNumber + "|" + name + "|" + cvv + "|" + debit + "\n");
+////                System.out.println("Debit successfully made!");
+//
+//            } catch (Exception e) {
+//                System.out.println("ERROR: Cannot make the debit ");
+////            e.getStackTrace();
+//            }
             // Ask if user wants to add another
             System.out.print("Would you like to make another deposit? (yes/no): ");
             String response = scanner.nextLine().trim().toLowerCase();
@@ -287,21 +317,32 @@ public class ApplicationApp {
 
     private static void displayDeposits() {
         System.out.println("\n ---All Deposits---");
-        try {
-            BufferedReader reader = new BufferedReader(new FileReader("deposits.csv"));
+        try (BufferedReader reader = new BufferedReader(new FileReader("transactions.csv"))) {
             String line;
             while ((line = reader.readLine()) != null) {
                 String[] parts = line.split(Pattern.quote("|"));
-                if (parts.length == 4) {
-                    System.out.printf("Date: %s | Account: %s | Name: %s | Amount: %s%n",
-                            parts[0], parts[1], parts[2], parts[3]);
+
+                // Skip the header or incomplete rows
+                if (parts.length < 5 || parts[4].equalsIgnoreCase("amount")) {
+                    continue;
+                }
+
+                try {
+                    double amount = Double.parseDouble(parts[4].trim());
+                    if (amount > 0) { // Deposit only
+                        System.out.printf("Date: %s | Time: %s | Description: %s | Vendor: %s | Amount: %.2f%n",
+                                parts[0], parts[1], parts[2], parts[3], amount);
+                    }
+                } catch (NumberFormatException e) {
+                    System.out.println("Error parsing amount in line: " + line);
                 }
             }
         } catch (FileNotFoundException e) {
-            System.out.println("No deposits found yet (file not created).");
+            System.out.println("No transactions found yet (file not created).");
         } catch (IOException e) {
-            System.out.println(" Error reading deposits: " + e.getMessage());
+            System.out.println("Error reading transactions: " + e.getMessage());
         }
+
         System.out.println("--------------------\n");
     }
 
@@ -330,6 +371,39 @@ public class ApplicationApp {
 
         return transactions;
     }
+
+    private static void writeTransactionToFile(String date, String time, String description, String vendor, double amount) {
+        String fileName = "transactions.csv";
+        String newEntry = date + "|" + time + "|" + description + "|" + vendor + "|" + amount + "\n";
+
+        try {
+            File file = new File(fileName);
+            List<String> lines = new ArrayList<>();
+
+            // If file exists, it read its content first
+            if (file.exists()) {
+                try (BufferedReader reader = new BufferedReader(new FileReader(file))) {
+                    String line;
+                    while ((line = reader.readLine()) != null) {
+                        lines.add(line);
+                    }
+                }
+            }
+
+            // Now it writes new entry FIRST, then the old lines
+            try (BufferedWriter writer = new BufferedWriter(new FileWriter(file))) {
+                for (String line : lines) {
+                    writer.write(line + "\n");
+                }
+                writer.write(newEntry); // new entry at bottom
+            }
+
+            System.out.println("Transaction saved successfully!");
+        } catch (IOException e) {
+            System.out.println("Error writing transaction: " + e.getMessage());
+        }
+    }
+
 
     private static void showMonthToDate(List<Transactions> transactions) {
         LocalDate now = LocalDate.now();
@@ -393,8 +467,6 @@ public class ApplicationApp {
         }
         System.out.println(); // blank line for spacing
     }
-
-
 
 
 }
