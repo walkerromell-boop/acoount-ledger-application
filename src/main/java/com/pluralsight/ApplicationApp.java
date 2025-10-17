@@ -49,6 +49,13 @@ public class ApplicationApp {
 //                case "R":
 //                    displayReportMenu();
 //                    break;
+                case "C": // Custom search option
+                    boolean goHome = displayCustomSearchMenu();
+                    if (goHome) {
+                        return; // exit ledger and go home
+                    }
+                    break;
+
                 case "X":
                     System.out.println("Exiting app... Have a blessed day");
                     running = false;
@@ -91,57 +98,82 @@ public class ApplicationApp {
     private static boolean displayCustomSearchMenu() {
         List<Transactions> transactions = readTransactions("transactions.csv");
         boolean report = true;
+
         while (report) {
             System.out.println("===== Custom Search =====");
             System.out.println("(1) Search by Start Date");
             System.out.println("(2) Search by End Date");
             System.out.println("(3) Search by Description");
             System.out.println("(4) Search by Vendor");
-            System.out.println("(5) Search by Amount");//prompt the user for the vendor name
-            // and display all entries for that vendor
+            System.out.println("(5) Search by Amount");
+            System.out.println("(0) Back to Ledger");
+            System.out.println("(H) Back to Home");
+            System.out.print("Choose an option: ");
 
-            System.out.println("Choose an option: ");
             String choice = scanner.nextLine().trim().toUpperCase();
 
             switch (choice) {
                 case "1":
-                    showMonthToDate(transactions);
+                    System.out.print("Enter start date (YYYY-MM-DD): ");
+                    LocalDate startDate = LocalDate.parse(scanner.nextLine().trim());
+                    List<Transactions> fromDate = transactions.stream()
+                            .filter(t -> !t.getDate().isBefore(startDate))
+                            .toList();
+                    displayResults(fromDate);
                     break;
 
                 case "2":
-                    showPreviousMonth(transactions);
+                    System.out.print("Enter end date (YYYY-MM-DD): ");
+                    LocalDate endDate = LocalDate.parse(scanner.nextLine().trim());
+                    List<Transactions> toDate = transactions.stream()
+                            .filter(t -> !t.getDate().isAfter(endDate))
+                            .toList();
+                    displayResults(toDate);
                     break;
 
                 case "3":
-                    showYearToDate(transactions);
+                    System.out.print("Enter description keyword: ");
+                    String desc = scanner.nextLine().trim().toLowerCase();
+                    List<Transactions> byDescription = transactions.stream()
+                            .filter(t -> t.getDescription().toLowerCase().contains(desc))
+                            .toList();
+                    displayResults(byDescription);
                     break;
 
                 case "4":
-                    showPreviousYear(transactions);
+                    System.out.print("Enter vendor name: ");
+                    String vendor = scanner.nextLine().trim().toLowerCase();
+                    List<Transactions> byVendor = transactions.stream()
+                            .filter(t -> t.getVendor().toLowerCase().contains(vendor))
+                            .toList();
+                    displayResults(byVendor);
                     break;
 
                 case "5":
-                    searchByVendor(transactions);
+                    System.out.print("Enter amount to search for: ");
+                    double searchAmount = Double.parseDouble(scanner.nextLine().trim());
+                    List<Transactions> byAmount = transactions.stream()
+                            .filter(t -> t.getAmount() == searchAmount)
+                            .toList();
+                    displayResults(byAmount);
                     break;
 
                 case "0":
-                    report = false; // go back to Ledger
-                    break;
+                    // go back to ledger
+                    return false;
 
                 case "H":
-                    //System.out.println("returning to main menu");
+                    // go back to home
                     return true;
 
                 default:
                     System.out.println("Invalid choice. Try again.");
                     break;
-
             }
-
         }
-
         return false;
     }
+
 
     private static boolean displayReportMenu() {
         List<Transactions> transactions = readTransactions("transactions.csv");
