@@ -436,21 +436,32 @@ public class ApplicationApp {
         List<Transactions> transactions = new ArrayList<>();
 
         try (BufferedReader bufferedReader = new BufferedReader(new FileReader(filename))) {
-            String line;
-            bufferedReader.readLine(); // skip header line
+            String line ;
+//            bufferedReader.readLine(); // skip header line
             while ((line = bufferedReader.readLine()) != null) {
+                // Skip empty lines or header rows
+                if (line.trim().isEmpty() || line.toLowerCase().contains("amount")) {
+                    continue;
+                }
+
                 String[] parts = line.split("\\|");
                 if (parts.length < 5) continue; // skip incomplete lines
 
-                String date = parts[0];
-                String time = parts[1];
-                String description = parts[2];
-                String vendor = parts[3];
-                double amount = Double.parseDouble(parts[4]);
+                try {
+                    String date = parts[0];
+                    String time = parts[1];
+                    String description = parts[2];
+                    String vendor = parts[3];
+                    double amount = Double.parseDouble(parts[4]);
 
-                Transactions transaction = new Transactions(date, time, description, vendor, amount);
-                transactions.add(transaction);
+                    Transactions transaction = new Transactions(date, time, description, vendor, amount);
+                    transactions.add(transaction);
+
+                } catch (NumberFormatException e) {
+                    System.out.println("Skipping invalid amount in line: " + line);
+                }
             }
+
         } catch (IOException e) {
             System.out.println("Error reading file: " + e.getMessage());
         }
@@ -462,28 +473,9 @@ public class ApplicationApp {
         String fileName = "transactions.csv";
         String newEntry = date + "|" + time + "|" + description + "|" + vendor + "|" + amount + "\n";
 
-        try {
-            File file = new File(fileName);
-            List<String> lines = new ArrayList<>();
-
-            // If file exists, it read its content first
-            if (file.exists()) {
-                try (BufferedReader reader = new BufferedReader(new FileReader(file))) {
-                    String line;
-                    while ((line = reader.readLine()) != null) {
-                        lines.add(line);
-                    }
-                }
-            }
-
-            // Now it writes new entry FIRST, then the old lines
-            try (BufferedWriter writer = new BufferedWriter(new FileWriter(file, true))) {
-                for (String line : lines) {
-                    writer.write(line + "\n");
-                }
-                writer.write(newEntry); // new entry at bottom
-            }
-
+        try (BufferedWriter writer = new BufferedWriter(new FileWriter(fileName, true))) {
+            // Simply append the new line to the bottom of the file
+            writer.write(newEntry);
             System.out.println("Transaction saved successfully!");
         } catch (IOException e) {
             System.out.println("Error writing transaction: " + e.getMessage());
